@@ -1,0 +1,91 @@
+Process to configure UCS Automatically:
+=======================================
+
+Before start configuring prepare the excel Sheet with required configuration. 
+
+1. Run Cisco UCS Manager PowerTool as Administrator.
+2. Change to the directory where Configure-Ucs.ps1 power-shell script resides.
+
+3. Configure-Ucs script options:
+	Command line options:
+		-Ucs - Specify the UCS Fabric Interconnect VIP.
+		-UcsUser - Specify the User Name (Should have admin rights)
+		-UcsPass - Specify the Password 
+		-ConfigFile - Specify the Excel sheet where the ucs configurations are.
+		-Equipment - Read the Equipment tab in the sheet and configure Fabric Interconnect.
+		-Servers - Read the Servers tab in the sheet and configure Fabric Interconnect.
+		-LAN - Read the LAN tab in the sheet and configure Fabric Interconnect. 
+		-SAN - Read the LAN tab in the sheet and configure Fabric Interconnect.
+		-VM -  Read the LAN tab in the sheet and configure Fabric Interconnect. (Used for VM-FEX implementation)
+		-Admin - Read the LAN tab in the sheet and configure Fabric Interconnect.
+
+
+E:g:
+
+./Configure-Ucs.ps1 -Ucs 10.110.249.132 -UcsUser admin -UcsPass admin123 -ConfigFile F:\DC1_UCS_Build\UCS-HO-Ucs1-Settings -Equipment -Servers -LAN -SAN -VM -Admin
+  
+The above powershell command will Configures the UCS FI 10.110.249.132 based on the Settings specified in the ConfigFile on the sheets Equipment, Servers, LAN, SAN, VM, and Admin.
+
+
+Additional Tweaking Required:
+=============================
+
+1. In the Local Disk Configuration Policies under Servers Tab:
+	Enable FlexFlash State (Required for SD Card Boot)
+	Enable FlexFlash RAID Reporting State
+	
+2. In the Boot Policy under Servers Tab:
+	Boot Order:
+		1. Local CD/DVD.
+		2. Remote CD/DVD.
+		3. SD Card.
+
+3. In the Maintanance default Policy under servers Tab:
+	Set Reboot Policy --> User Ack
+
+4. In the Host Firmware Packages default Policy under Servers Tab. 
+	Blade Package: Choose the curent one Blades to be upgraded.
+
+5. Add management pool to the Templates.
+	Service Profile Templates --> General --> change Management IP Address --> Outbound IPv4 (Choose ext-mgmt).
+
+6. In the BIOS Policies under Servers Tab:
+	Main--> enable Quiet Boot
+	Advanced--> Disable Turbo Boost
+	Advanced--> Disable Enhanced Intel Speedstep
+	
+
+
+Add Blades manually to servers pool.
+====================================
+
+7. Remove Target pool from Server Pool Policy under servers Tab.
+8. Add the blades in to the Server Pools under servers Tab.
+
+
+Enable CDP on VNICs
+===================
+9. Add Network Control Policies (CDP_Enable_Polic) under LAN tab and enable CDP.
+10. Add the Network Control policy to all the vNic Templates under LAN tab.
+
+
+Pass VSANs to Uplink MDS Devices:
+=================================
+11. Add the description to FC uplink and drop them in to proper VSAN.
+12. Also check vHBA templates under SAN tab are dropped into proper VSANs for uplink MDS switch connectivity.
+
+
+Adaptor Ordering in the ESXi Template:
+======================================
+
+13. Go to Service Template --> Network --> Modify vNIC/vHBA Placement --> Specify Manually
+14. Assign/Move all vNICs and VHBAs under vCon 1
+15. Arrange them using Miove Up/ Move Down.
+
+Note: Allocate VHBA fc0 to order 7.This is fixed one for some reasons.
+
+
+
+
+
+ 

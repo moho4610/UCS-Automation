@@ -1,0 +1,4 @@
+
+##Run UCS power tool and copy the following line 
+
+./Configure-Ucs.ps1 -Ucs <<UCS FQDN/IP>> -UcsUser <<User>> -UcsPass <<Pass>> -ConfigFile <<LocationToExcelSpreadSheet>>
